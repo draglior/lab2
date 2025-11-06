@@ -16,6 +16,9 @@
 uint16_t seconds = 0;
 uint16_t milliseconds = 0;
 uint16_t minutes = 0;
+uint16_t loops = 0;
+uint16_t c = 0;
+float d = 0;
 
 void initialize_timer()
 {
@@ -92,15 +95,15 @@ void initialize_timer()
     // T1: Set External Clock Input Synchronization -> no sync
     //T1CONbits.TSYNC=0;
     // Load Timer Periods
-    PR3=65536; //2^16
+    PR3=0xffff;
     // Reset Timer Values
-    TMR3=0x00;
+    TMR3=0;
     // Set Interrupt Priority
     IPC2bits.T3IP = 0x01;
     // Clear Interrupt Flags
     IFS0bits.T3IF = 0;
     // Enable Interrupts
-    SETBIT(IEC0bits.T3IE);
+    CLEARBIT(IEC0bits.T3IE);
     // Enable the Timers
     SETBIT(T3CONbits.TON);
     
@@ -113,18 +116,32 @@ void timer_loop()
     lcd_printf("Lab02: Int & Timer");
     lcd_locate(0, 1);
     lcd_printf("Group: BluePinneapple");
+    TMR3=0;
     while(TRUE)
     {
+        
+        loops++;
+        
+        if (loops==2000){
+        TOGGLEBIT(LED3_PORT);
         lcd_locate(0, 5);    
-        lcd_printf("%02u:%02u.%03u\r\n" , minutes, seconds, milliseconds);  
+        lcd_printf("%02u:%02u.%03u\r\n" , minutes, seconds, milliseconds);
+        d = TMR3 ;
+        d = d / 1000;
+        lcd_locate(0, 7); 
+        lcd_printf("c: %u, d: %02fms", TMR3, d);
+        TMR3=0;
+        loops = 0;
+        }
+           
     }
 }
 
 void __attribute__((__interrupt__, __shadow__, __auto_psv__)) _T1Interrupt(void)
-{ // invoked every ??
+{ 
     TOGGLEBIT(LED2_PORT);
     seconds++;
-    if (seconds > 60){ 
+    if (seconds > 59){ 
             seconds = 0;
             minutes++;}
     
@@ -140,9 +157,4 @@ void __attribute__((__interrupt__, __shadow__, __auto_psv__)) _T2Interrupt(void)
             milliseconds = 0;
     
     IFS0bits.T2IF = 0;
-}
-
-void __attribute__((__interrupt__, __shadow__, __auto_psv__)) _T3Interrupt(void)
-{
-    IFS0bits.T3IF = 0;
 }
