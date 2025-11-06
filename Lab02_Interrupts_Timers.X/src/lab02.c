@@ -126,8 +126,7 @@ void timer_loop()
         TOGGLEBIT(LED3_PORT);
         lcd_locate(0, 5);    
         lcd_printf("%02u:%02u.%03u\r\n" , minutes, seconds, milliseconds);
-        d = (float)TMR3 / 12800000.0f;
-        d = d / 1000;
+        d = (float)TMR3 / 12800.0f; //12.8Mhz -> seconds and then / 1000 for ms
         lcd_locate(0, 7);
         lcd_printf("c: %u, d: %.4f ms", TMR3, d);
         TMR3=0;
