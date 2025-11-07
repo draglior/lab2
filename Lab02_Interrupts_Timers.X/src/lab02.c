@@ -116,19 +116,18 @@ void timer_loop()
     lcd_printf("Lab02: Int & Timer");
     lcd_locate(0, 1);
     lcd_printf("Group: BluePinneapple");
-    TMR3=0;
     while(TRUE)
     {
         
         loops++;
         
         if (loops==2000){
-        TOGGLEBIT(LED3_PORT);
+        TOGGLELED(LED3_PORT);
         lcd_locate(0, 5);    
-        lcd_printf("%02u:%02u.%03u\r\n" , minutes, seconds, milliseconds);
-        d = (float)TMR3 / 12800.0f; //12.8Mhz -> seconds and then / 1000 for ms
+        lcd_printf("%02u:%02u.%03u" , minutes, seconds, milliseconds);
+        d = TMR3 / 12800.0; //12.8Mhz -> seconds and then / 1000 for ms
         lcd_locate(0, 7);
-        lcd_printf("c: %u, d: %.4f ms", TMR3, d);
+        lcd_printf("c: %05u, d: %.4fms", TMR3, d);
         TMR3=0;
         loops = 0;
         }
